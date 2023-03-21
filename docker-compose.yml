@@ -1,0 +1,43 @@
+version: '3.0'
+services:
+  db:
+    image: mariadb
+    container_name: mariadb
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    networks:
+      - proxy-net
+    expose:
+      - 3306
+      - 33060
+  wordpress:
+    container_name: ${DOCKER_SERVICE}
+    image: wordpress:latest
+    networks:
+      - proxy-net
+    expose:
+      - 80
+    volumes:
+      - wp_html:/var/www/html
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+
+volumes:
+  db_data:
+  wp_html:
+
+networks:
+    proxy-net:
+        external:
+            name: nginx-proxy-manager_default
